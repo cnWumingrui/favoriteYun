@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+         http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+       ">
+	<!-- 读取jdbc.properties文件 -->
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations" value="classpath*:jdbc.properties" />
+	</bean>
+
+	<!-- 使用了jdbc数据源 -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${jdbc.driverClassName}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+
+
+	<!-- 我们选用的是 dao层的 mybatis框架, 但spring没有提供mybatis的整合的功能， 但mybatis自己开发了一个插件, 
+		mybatis-spring.xxx.jar -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- 在这个 sqlSessionFactory中，主要要完成读取 mybatis的配置文件的工作 -->
+		<!-- 数据源 -->
+		<property name="dataSource" ref="dataSource" />
+		<!-- 配置 configLocation :mybatis的配置文件路径 , 空上sqlSessionFactory会完成读取 这个配置文件 
+			<property name="configLocation" value="classpath:mybatis-config.xml" /> -->
+
+		<!-- 如果不读取 mybatis-config.xml文件，那 typealiases, mapper的配置都要单独配 -->
+		<property name="typeAliasesPackage" value="com/yc/bean" />
+		<property name="mapperLocations" value="classpath:com/yc/dao/*.xml" />
+	</bean>
+
+	<!-- mybatis sqlSession -->
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="txManager" />
+	<bean id="txManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+
+
+
+
+
+</beans>

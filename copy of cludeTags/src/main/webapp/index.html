@@ -1,0 +1,164 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8">
+    <title>搜藏</title>
+	<meta http-equiv="pragma" content="no-cache">
+	<meta http-equiv="cache-control" content="no-cache">
+	<meta http-equiv="expires" content="0">    
+	
+	<link rel="stylesheet" type="text/css" href="css/styles.css">
+	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+	
+	<script type="text/javascript">
+	function add(){
+		var r=window.open ('favorite_toAdd.action', 'newwindow', 'height=300, width=400, toolbar=no, menubar=no, scrollbars=no, resizable=no,location=no, status=no');
+		init();
+	}
+	
+	function showTags(type) {
+		$.ajax({
+			type : "POST",
+			url : "tag_findAll.action?"+new Date(),
+			dataType : "JSON",   //   jsonModel:  tag集合
+			success : function(data) {
+				if (type == 1) { //显示所有标签到左边树
+					$("#taglink").html('');
+					$.each(data.obj, function(i, entity) {
+						$("#taglink").append(
+								"<a href=javascript:findAllFavorite('"
+										+ entity.tname + "')>" + entity.tname
+										+ "</a><br />");
+					});
+				} else {
+					$("#content_links").html('');
+					$.each(data.obj, function(i, entity) {
+						var fontsize = entity.tcount / 2 + 3;   //字体大小
+						$("#content_links").append(
+								"<font size='"+fontsize+"'><a href=javascript:findAllFavorite('"
+										+ entity.tname + "')>" + entity.tname
+										+ "</a></font>&nbsp;&nbsp;");
+					});
+				}
+
+			}
+		});
+	}
+	
+	function findAllFavorite(type) {
+		var typeval = 'tname=' + encodeURI(type);     //    encodeURI   中文编码
+		var urlstring = "favorite_findAll.action";
+
+		$
+				.ajax({
+					type : "post",
+					url : urlstring,
+					data : typeval,
+					dataType : "json",
+					success : function(data) {
+						$("#content_links").html('');
+						$
+								.each(
+										data.obj,
+										function(i, entity) {
+											var result = "<div style='padding:6px 10px;'>";
+											result += "<div><a href="+entity.furl+" style='color:blue;font-size:18px;' target='_blank'>"
+													+ entity.flabel
+													+ "</a></div><div style='color:black;font-size:16px;'>"
+													+ entity.flabel + "</div>";
+											result += "<div style='color:green;font-size:14px;'>"
+													+ entity.furl
+													+ "</div></div>";
+
+											$("#content_links").append(result);
+
+										});
+					}
+				});
+	}
+	
+	
+	function init() {
+		showTags(1);  // 1   左边显示标签
+		findAllFavorite('全部');
+	}
+	
+	$(function(){
+		init();
+	});
+	</script>
+  </head>
+  <body>
+    <form name="favForm" method="post" action="/cang/fav.do;jsessionid=FF8C0487A99814B144B07E5633524A0F">
+      <input type="hidden" name="op" value="toList" />
+    
+    <div class="banner" valign="top">
+    	 搜藏
+    </div>
+      
+	<table cellspacing="0" cellpadding="0" border="0">
+		<tr>
+			<td style="text-align:right;" valign="top">
+			<!-- 左边Tag列表 -->
+				<div class="left_labels" >
+				 
+				
+				<table class="labels_table" cellspacing="0" cellpadding="0" border="0">
+					<tr><td><a href="javascript:void()" onclick="add();" style="font-weight:bold;">添加书签</a></td></tr>
+					<tr>
+						<td class="selected_label">
+							<a href="javascript:findAllFavorite('全部')">全部</a>
+						</td>
+					</tr>
+					<tr>
+						<td >
+							<a href="javascript:findAllFavorite('未分类')">未分类</a>
+						</td>
+					</tr>
+					
+					
+					<tr>
+						<td>
+							<div id="taglink"></div>
+						</td>
+					</tr>
+						
+						
+				
+						
+					
+					<tr>
+						<td>
+							<a style="font-weight:bold;" href="javascript:showTags(2)">云图</a>
+						</td>
+					</tr>
+				</table>
+				</div>
+			</td>
+			<td>
+			<!-- 右边fav内容 -->
+				<div class="content_links" id="content_links">
+				
+				<div style="padding:6px 10px;">	
+					<div>
+						<a href="http://www.apache.org/struts/" style="color:blue;font-size:18px;" target="_blank">Apache Struts</a>
+					</div>
+					<div style="color:black;font-size:16px;">	
+						Struts官方站点
+					</div>
+					<div style="color:green;font-size:14px;">
+						http://www.apache.org/struts/
+					</div>
+				</div>	
+				
+			
+				
+				</div>
+			</td>
+		</tr>
+	</table> 
+	
+    </form>
+  </body>
+</html>
